@@ -1,0 +1,17 @@
+name: logs
+version: 0.0.1
+
+author: Dart Team <misc@dartlang.org>
+
+description: Lightweight logging for Flutter.
+homepage: https://github.com/pq/logs
+
+environment:
+  sdk: '<3.0.0'
+
+dependencies:
+  meta: ^1.0.2
+
+dev_dependencies:
+  test: ^1.3.0
+
