@@ -54,7 +54,7 @@ class LoggingService {
     enable ? _enabledChannels.add(channel) : _enabledChannels.remove(channel);
   }
 
-  void log(String channel, DebugLogMessageCallback messageCallback) {
+  void log(String channel, LogMessageCallback messageCallback) {
     assert(channel != null);
     if (!shouldLog(channel)) {
       return;
