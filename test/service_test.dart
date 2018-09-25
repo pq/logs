@@ -7,10 +7,9 @@ void main() {
     String loggedResult;
 
     setUp(() {
-      DeveloperLogCallback callback = (String message, String channel) {
+      service = LoggingService.withCallback((String message, String channel) {
         loggedResult = message;
-      };
-      service = LoggingService.withCallback(callback);
+      });
     });
 
     test('register', () {
