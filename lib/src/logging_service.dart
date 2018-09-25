@@ -1,5 +1,8 @@
 import 'package:meta/meta.dart';
 
+/// The shared service instance.
+final LoggingService loggingService = LoggingService();
+
 /// Exception thrown on logging service configuration errors.
 class LoggingException extends Error implements Exception {
   /// Message describing the exception.
@@ -19,9 +22,6 @@ class LoggingException extends Error implements Exception {
 /// * To enable or disable a logging channel, use [debugEnableLogging].
 /// * To query channel enablement, use [debugShouldLogEvent].
 class LoggingService {
-  /// The shared service instance.
-  static final LoggingService instance = LoggingService();
-
   Map<String, String> _channels = <String, String>{};
   Set<String> _enabledChannels = Set<String>();
 
