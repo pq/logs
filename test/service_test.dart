@@ -54,5 +54,17 @@ void main() {
       service.registerChannel('baz');
       expect(service.channels.keys, containsAll(['foo', 'bar', 'baz']));
     });
+
+    test('log', () {
+      String result;
+      DeveloperLogCallback callback = (String message, String channel) {
+        result = message;
+      };
+      service = LoggingService.withCallback(callback);
+      service.registerChannel('foo');
+      service.enableLogging('foo', true);
+      service.log('foo', () => 'bar');
+      expect(result, '"bar"');
+    });
   });
 }
