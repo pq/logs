@@ -18,9 +18,9 @@ class LoggingException extends Error implements Exception {
 ///
 /// The [LoggingService] is intended for internal use only.
 ///
-/// * To create logging channels, see [LoggingChannel].
-/// * To enable or disable a logging channel, use [debugEnableLogging].
-/// * To query channel enablement, use [debugShouldLogEvent].
+/// * To create logging channels, see [registerChannel].
+/// * To enable or disable a logging channel, use [enableLogging].
+/// * To query channel enablement, use [shouldLog].
 class LoggingService {
   Map<String, String> _channels = <String, String>{};
   Set<String> _enabledChannels = Set<String>();
