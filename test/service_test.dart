@@ -4,9 +4,12 @@ import 'package:test/test.dart';
 void main() {
   group('service tests', () {
     LoggingService service;
+    String loggedResult;
 
     setUp(() {
-      service = LoggingService();
+      service = LoggingService.withCallback((String message, String channel) {
+        loggedResult = message;
+      });
     });
 
     test('register', () {
@@ -53,6 +56,13 @@ void main() {
       service.registerChannel('bar');
       service.registerChannel('baz');
       expect(service.channels.keys, containsAll(['foo', 'bar', 'baz']));
+    });
+
+    test('log', () {
+      service.registerChannel('foo');
+      service.enableLogging('foo', true);
+      service.log('foo', () => 'bar');
+      expect(loggedResult, '"bar"');
     });
   });
 }
