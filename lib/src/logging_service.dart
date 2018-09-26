@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as developer;
 
@@ -17,6 +18,9 @@ class LoggingException extends Error implements Exception {
   @override
   String toString() => 'Logging exception: $message';
 }
+
+typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
+    Map<String, String> parameters);
 
 @visibleForTesting
 typedef DeveloperLogCallback = void Function(String message, String name);
@@ -54,6 +58,31 @@ class LoggingService {
     enable ? _enabledChannels.add(channel) : _enabledChannels.remove(channel);
   }
 
+  /// Called to register service extensions.
+  ///
+  /// Note: ideally this will be replaced w/ inline registrations within the
+  /// flutter foundation binding (see e.g., https://github.com/flutter/flutter/pull/21505).
+  void initServiceExtensions() {
+    _registerServiceExtension(
+        name: 'logging',
+        callback: (Map<String, Object> parameters) async {
+          final String channel = parameters['channel'];
+          if (channel != null) {
+            if (_channels.containsKey(channel)) {
+              enableLogging(channel, parameters['enable'] == 'true');
+            }
+          }
+          return <String, dynamic>{};
+        });
+    _registerServiceExtension(
+        name: 'loggingChannels',
+        callback: (Map<String, dynamic> parameters) async => _channels
+            .map((channel, description) => MapEntry(channel, <String, String>{
+                  'enabled': shouldLog(channel).toString(),
+                  'description': description,
+                })));
+  }
+
   void log(String channel, LogMessageCallback messageCallback) {
     assert(channel != null);
     if (!shouldLog(channel)) {
@@ -75,4 +104,39 @@ class LoggingService {
   }
 
   bool shouldLog(String channel) => _enabledChannels.contains(channel);
+
+  /// Registers a service extension method with the given name and a callback to
+  /// be called when the extension method is called.
+  void _registerServiceExtension(
+      {@required String name, @required _ServiceExtensionCallback callback}) {
+    assert(name != null);
+    assert(callback != null);
+    developer.registerExtension(name,
+        (String method, Map<String, String> parameters) async {
+      assert(method == name);
+
+      dynamic caughtException;
+      StackTrace caughtStack;
+      Map<String, dynamic> result;
+      try {
+        result = await callback(parameters);
+      } catch (exception, stack) {
+        caughtException = exception;
+        caughtStack = stack;
+      }
+      if (caughtException == null) {
+        result['type'] = '_extensionType';
+        result['method'] = method;
+        return developer.ServiceExtensionResponse.result(json.encode(result));
+      } else {
+        return developer.ServiceExtensionResponse.error(
+            developer.ServiceExtensionResponse.extensionError,
+            json.encode(<String, String>{
+              'exception': caughtException.toString(),
+              'stack': caughtStack.toString(),
+              'method': method,
+            }));
+      }
+    });
+  }
 }
