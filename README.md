@@ -3,4 +3,6 @@ A lightweight logging framework for Flutter
 
 ---
 
-Background and motivation can be found in https://github.com/flutter/flutter/issues/21504.  Some relevant implementation considerations can be found in the discussion around https://github.com/flutter/flutter/pull/22041 (CLOSED).
+Background and motivation can be found in the associated flutter tracking issue: [flutter#21504](https://github.com/flutter/flutter/issues/21504).  
+
+Some relevant implementation considerations can be found in the discussion around proposed changes to flutter foundation  ([flutter#21505](https://github.com/flutter/flutter/pull/21505) and [flutter#22041](https://github.com/flutter/flutter/pull/22041)).
