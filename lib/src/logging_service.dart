@@ -64,7 +64,7 @@ class LoggingService {
   /// flutter foundation binding (see e.g., https://github.com/flutter/flutter/pull/21505).
   void initServiceExtensions() {
     _registerServiceExtension(
-        name: 'ext.flutter.logs.enable',
+        name: 'logs.enable',
         callback: (Map<String, Object> parameters) async {
           final String channel = parameters['channel'];
           if (channel != null) {
@@ -75,7 +75,7 @@ class LoggingService {
           return <String, dynamic>{};
         });
     _registerServiceExtension(
-        name: 'ext.flutter.logs.loggingChannels',
+        name: 'logs.loggingChannels',
         callback: (Map<String, dynamic> parameters) async => _channels
             .map((channel, description) => MapEntry(channel, <String, String>{
                   'enabled': shouldLog(channel).toString(),
@@ -111,9 +111,10 @@ class LoggingService {
       {@required String name, @required _ServiceExtensionCallback callback}) {
     assert(name != null);
     assert(callback != null);
+    final String methodName = 'ext.flutter.$name';
     developer.registerExtension(name,
         (String method, Map<String, String> parameters) async {
-      assert(method == name);
+      assert(method == methodName);
 
       dynamic caughtException;
       StackTrace caughtStack;
