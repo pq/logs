@@ -112,7 +112,7 @@ class LoggingService {
     assert(name != null);
     assert(callback != null);
     final String methodName = 'ext.flutter.logs.$name';
-    developer.registerExtension(name,
+    developer.registerExtension(methodName,
         (String method, Map<String, String> parameters) async {
       assert(method == methodName);
 
