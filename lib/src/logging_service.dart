@@ -75,12 +75,13 @@ class LoggingService {
         });
     _registerServiceExtension(
         name: 'loggingChannels',
-        callback: (Map<String, dynamic> parameters) async =>
-            _channelDescriptions.map(
-                (channel, description) => MapEntry(channel, <String, String>{
-                      'enabled': shouldLog(channel).toString(),
-                      'description': description,
-                    })));
+        callback: (Map<String, dynamic> parameters) async => {
+              'value': _channelDescriptions.map(
+                  (channel, description) => MapEntry(channel, <String, String>{
+                        'enabled': shouldLog(channel).toString(),
+                        'description': description ?? '',
+                      }))
+            });
   }
 
   void log(String channel, LogMessageCallback messageCallback) {
