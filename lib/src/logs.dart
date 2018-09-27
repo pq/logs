@@ -4,6 +4,11 @@ import 'package:logs/src/logging_service.dart';
 /// be encodable as JSON using `json.encode()`.
 typedef LogMessageCallback = Object Function();
 
+/// Enable (or disable) logging for all events on the given [channel].
+void enableLogging(String channel, [bool enable = true]) {
+  loggingService.enableLogging(channel, enable);
+}
+
 /// Logs a message conditionally if the given identifying event [channel] is
 /// enabled (if `shouldLog(channel)` is true).
 ///
@@ -31,11 +36,6 @@ void log(String channel, LogMessageCallback messageCallback) {
   loggingService.log(channel, messageCallback);
 }
 
-/// Enable (or disable) logging for all events on the given [channel].
-void enableLogging(String channel, [bool enable = true]) {
-  loggingService.enableLogging(channel, enable);
-}
-
 /// Register a logging channel with the given [name] and optional [description].
 void registerLoggingChannel(String name, {String description}) {
   loggingService.registerChannel(name, description: description);
@@ -43,3 +43,24 @@ void registerLoggingChannel(String name, {String description}) {
 
 /// Returns true if events on the given event [channel] should be logged.
 bool shouldLog(String channel) => loggingService.shouldLog(channel);
+
+class Log {
+  final String channel;
+
+  Log(this.channel, {String description}) {
+    if (!loggingService.channels.containsKey(channel)) {
+      loggingService.registerChannel(channel, description: description);
+    }
+  }
+
+  bool get enabled => loggingService.shouldLog(channel);
+
+  void set enabled(enabled) {
+    loggingService.enableLogging(channel, enabled);
+  }
+
+  /// @see [log]
+  void log(LogMessageCallback messageCallback) {
+    loggingService.log(channel, messageCallback);
+  }
+}
