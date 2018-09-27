@@ -48,6 +48,7 @@ class Log {
   final String channel;
 
   Log(this.channel, {String description}) {
+    assert(channel != null);
     if (!loggingService.channels.containsKey(channel)) {
       loggingService.registerChannel(channel, description: description);
     }
