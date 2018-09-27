@@ -48,7 +48,6 @@ class LoggingService {
   LoggingService.withCallback(this._logMessageCallback);
 
   /// A map of channels to channel descriptions.
-  @visibleForTesting
   Map<String, String> get channels => _channels;
 
   void enableLogging(String channel, bool enable) {
