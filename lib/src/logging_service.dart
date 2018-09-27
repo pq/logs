@@ -90,10 +90,51 @@ class LoggingService {
     }
 
     assert(messageCallback != null);
-    final Object message = messageCallback();
+    final String message = messageCallback();
     assert(message != null);
 
-    _logMessageCallback(json.encode(message), channel);
+    _logMessageCallback(message, channel);
+  }
+
+  void logData(
+    String channel,
+    Object data, {
+    LogMessageCallback messageCallback,
+    Object toEncodable(Object nonEncodable),
+  }) {
+    assert(channel != null);
+    if (!shouldLog(channel)) {
+      return;
+    }
+
+    String message =
+        messageCallback != null ? messageCallback() : data.toString();
+    if (toEncodable != null) {
+      data = toEncodable(data);
+    }
+    developer.log(message, name: channel, error: data);
+  }
+
+  void logError(
+    String channel,
+    Object error, {
+    StackTrace stackTrace,
+    LogMessageCallback messageCallback,
+  }) {
+    assert(channel != null);
+    if (!shouldLog(channel)) {
+      return;
+    }
+
+    String message =
+        messageCallback != null ? messageCallback() : error.toString();
+    developer.log(
+      message,
+      name: channel,
+      level: 1000,
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   void registerChannel(String name, {String description}) {

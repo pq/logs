@@ -2,7 +2,7 @@ import 'package:logs/src/logging_service.dart';
 
 /// A callback that, when evaluated, returns a log message.  Log messages must
 /// be encodable as JSON using `json.encode()`.
-typedef LogMessageCallback = Object Function();
+typedef LogMessageCallback = String Function();
 
 /// Enable (or disable) logging for all events on the given [channel].
 void enableLogging(String channel, [bool enable = true]) {
@@ -63,5 +63,31 @@ class Log {
   /// @see [log]
   void log(LogMessageCallback messageCallback) {
     loggingService.log(channel, messageCallback);
+  }
+
+  void logData(
+    Object data, {
+    LogMessageCallback messageCallback,
+    Object toEncodable(Object nonEncodable),
+  }) {
+    loggingService.logData(
+      channel,
+      data,
+      messageCallback: messageCallback,
+      toEncodable: toEncodable,
+    );
+  }
+
+  void logError(
+    Object error, {
+    StackTrace stackTrace,
+    LogMessageCallback messageCallback,
+  }) {
+    loggingService.logError(
+      channel,
+      error,
+      messageCallback: messageCallback,
+      stackTrace: stackTrace,
+    );
   }
 }
