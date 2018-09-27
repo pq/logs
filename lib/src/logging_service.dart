@@ -33,7 +33,7 @@ typedef DeveloperLogCallback = void Function(String message, String name);
 /// * To enable or disable a logging channel, use [enableLogging].
 /// * To query channel enablement, use [shouldLog].
 class LoggingService {
-  Map<String, String> _channels = <String, String>{};
+  Map<String, String> _channelDescriptions = <String, String>{};
   Set<String> _enabledChannels = Set<String>();
 
   final DeveloperLogCallback _logMessageCallback;
@@ -48,10 +48,10 @@ class LoggingService {
   LoggingService.withCallback(this._logMessageCallback);
 
   /// A map of channels to channel descriptions.
-  Map<String, String> get channels => _channels;
+  Map<String, String> get channelDescriptions => _channelDescriptions;
 
   void enableLogging(String channel, bool enable) {
-    if (!_channels.containsKey(channel)) {
+    if (!_channelDescriptions.containsKey(channel)) {
       throw LoggingException('channel "$channel" is not registered');
     }
     enable ? _enabledChannels.add(channel) : _enabledChannels.remove(channel);
@@ -67,7 +67,7 @@ class LoggingService {
         callback: (Map<String, Object> parameters) async {
           final String channel = parameters['channel'];
           if (channel != null) {
-            if (_channels.containsKey(channel)) {
+            if (_channelDescriptions.containsKey(channel)) {
               enableLogging(channel, parameters['enable'] == 'true');
             }
           }
@@ -75,11 +75,12 @@ class LoggingService {
         });
     _registerServiceExtension(
         name: 'loggingChannels',
-        callback: (Map<String, dynamic> parameters) async => _channels
-            .map((channel, description) => MapEntry(channel, <String, String>{
-                  'enabled': shouldLog(channel).toString(),
-                  'description': description,
-                })));
+        callback: (Map<String, dynamic> parameters) async =>
+            _channelDescriptions.map(
+                (channel, description) => MapEntry(channel, <String, String>{
+                      'enabled': shouldLog(channel).toString(),
+                      'description': description,
+                    })));
   }
 
   void log(String channel, LogMessageCallback messageCallback) {
@@ -96,10 +97,10 @@ class LoggingService {
   }
 
   void registerChannel(String name, {String description}) {
-    if (_channels.containsKey(name)) {
+    if (_channelDescriptions.containsKey(name)) {
       throw LoggingException('a channel named "$name" is already registered');
     }
-    _channels[name] = description;
+    _channelDescriptions[name] = description;
   }
 
   bool shouldLog(String channel) => _enabledChannels.contains(channel);

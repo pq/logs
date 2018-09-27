@@ -13,15 +13,15 @@ void main() {
     });
 
     test('register', () {
-      expect(service.channels.containsKey('foo'), isFalse);
+      expect(service.channelDescriptions.containsKey('foo'), isFalse);
       service.registerChannel('foo');
-      expect(service.channels.containsKey('foo'), isTrue);
+      expect(service.channelDescriptions.containsKey('foo'), isTrue);
     });
 
     test('register twice', () {
-      expect(service.channels.containsKey('foo'), isFalse);
+      expect(service.channelDescriptions.containsKey('foo'), isFalse);
       service.registerChannel('foo');
-      expect(service.channels.containsKey('foo'), isTrue);
+      expect(service.channelDescriptions.containsKey('foo'), isTrue);
       expect(() => service.registerChannel('foo'), throwsException);
     });
 
@@ -48,14 +48,14 @@ void main() {
 
     test('description', () {
       service.registerChannel('foo', description: 'a channel for foos');
-      expect(service.channels['foo'], 'a channel for foos');
+      expect(service.channelDescriptions['foo'], 'a channel for foos');
     });
 
     test('channels', () {
       service.registerChannel('foo');
       service.registerChannel('bar');
       service.registerChannel('baz');
-      expect(service.channels.keys, containsAll(['foo', 'bar', 'baz']));
+      expect(service.channelDescriptions.keys, containsAll(['foo', 'bar', 'baz']));
     });
 
     test('log', () {
