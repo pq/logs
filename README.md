@@ -1,6 +1,8 @@
 # logs
 A lightweight logging framework for Flutter
 
+[![Build Status](https://travis-ci.org/pq/logs.svg?branch=master)](https://travis-ci.org/pq/logs)
+
 ---
 
 Background and motivation can be found in the associated flutter tracking issue: [flutter#21504](https://github.com/flutter/flutter/issues/21504).  
