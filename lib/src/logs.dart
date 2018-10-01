@@ -40,7 +40,8 @@ void enableLogging(String channel, [bool enable = true]) {
 /// [debugEnableLogging] or using a VM service call.
 void log(String channel, LogMessageCallback messageCallback,
     {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
-  loggingService.log(channel, messageCallback);
+  loggingService.log(channel, messageCallback,
+      data: data, toJsonEncodable: toJsonEncodable);
 }
 
 /// Register a logging channel with the given [name] and optional [description].
