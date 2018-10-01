@@ -5,7 +5,7 @@ void main() {
   group('service tests', () {
     LoggingService service;
     String loggedResult;
-    Object loggedData;
+    String loggedData;
 
     setUp(() {
       service = LoggingService.withCallback(
@@ -65,8 +65,14 @@ void main() {
     test('log', () {
       service.registerChannel('foo');
       service.enableLogging('foo', true);
-      service.log('foo', () => 'bar');
+      service.log('foo', () => 'bar',
+          data: () => {
+                'x': 1,
+                'y': 2,
+                'z': 3,
+              });
       expect(loggedResult, 'bar');
+      expect(loggedData, '{"x":1,"y":2,"z":3}');
     });
   });
 }
