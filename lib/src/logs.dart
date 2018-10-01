@@ -1,8 +1,14 @@
 import 'package:logs/src/logging_service.dart';
 
-/// A callback that, when evaluated, returns a log message.  Log messages must
+/// A callback that, when evaluated, returns a log message.
+typedef LogMessageCallback = String Function();
+
+/// A callback that, when evaluated, returns log data. Log data maps must
 /// be encodable as JSON using `json.encode()`.
-typedef LogMessageCallback = Object Function();
+typedef LogDataCallback = Map Function();
+
+/// A function that encodes a given object as a JSON-encodable map.
+typedef ToJsonEncodable = Map<dynamic, dynamic> Function(Object);
 
 /// Enable (or disable) logging for all events on the given [channel].
 void enableLogging(String channel, [bool enable = true]) {
@@ -12,17 +18,17 @@ void enableLogging(String channel, [bool enable = true]) {
 /// Logs a message conditionally if the given identifying event [channel] is
 /// enabled (if `shouldLog(channel)` is true).
 ///
-/// Messages are obtained by evaluating [messageCallback] and must be encodable
-/// as JSON strings using `json.encode()`. In the event that logging is not
-/// enabled for the given [channel], [messageCallback] will not be evaluated.
-/// The cost of logging calls can be further mitigated at call sites by invoking
-/// them in a function that is only evaluated in debug (or profile) mode(s). For
-/// example, to ignore logging in release mode you could wrap calls in a profile
-/// callback:
+/// Messages are obtained by evaluating [messageCallback]. An optional map of
+/// JSON-encodable data can be provided with a [data] callback. In the event
+/// that logging is not enabled for the given [channel], [messageCallback] and
+/// [data] will not be evaluated. The cost of logging calls can be further
+/// mitigated at call sites by invoking them in a function that is only
+/// evaluated in debug (or profile) mode(s). For example, to ignore logging in
+/// release mode you could wrap calls in a profile callback:
 ///
 /// ```dart
 /// profile(() {
-///   log(logGestures, () => <String, int> {
+///   log(logGestures, () => 'gesture call', () => <String, int> {
 ///    'x' : x,
 ///    'y' : y,
 ///    'z' : z,
@@ -32,7 +38,8 @@ void enableLogging(String channel, [bool enable = true]) {
 ///
 /// Logging for a given event channel can be enabled programmatically via
 /// [debugEnableLogging] or using a VM service call.
-void log(String channel, LogMessageCallback messageCallback) {
+void log(String channel, LogMessageCallback messageCallback,
+    {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
   loggingService.log(channel, messageCallback);
 }
 
@@ -61,7 +68,9 @@ class Log {
   }
 
   /// @see [log]
-  void log(LogMessageCallback messageCallback) {
-    loggingService.log(channel, messageCallback);
+  void log(LogMessageCallback messageCallback,
+      {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
+    loggingService.log(channel, messageCallback,
+        data: data, toJsonEncodable: toJsonEncodable);
   }
 }
