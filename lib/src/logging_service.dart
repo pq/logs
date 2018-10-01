@@ -96,9 +96,8 @@ class LoggingService {
     final String message = messageCallback();
     assert(message != null);
 
-    String encodedData = data != null
-        ? json.encode(message, toEncodable: toJsonEncodable)
-        : null;
+    String encodedData =
+        data != null ? json.encode(data(), toEncodable: toJsonEncodable) : null;
     _logMessageCallback(message, channel, encodedData);
   }
 
