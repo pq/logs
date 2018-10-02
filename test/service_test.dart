@@ -5,10 +5,13 @@ void main() {
   group('service tests', () {
     LoggingService service;
     String loggedResult;
+    String loggedData;
 
     setUp(() {
-      service = LoggingService.withCallback((String message, String channel) {
+      service = LoggingService.withCallback(
+          (String message, String channel, Object data) {
         loggedResult = message;
+        loggedData = data;
       });
     });
 
@@ -55,14 +58,21 @@ void main() {
       service.registerChannel('foo');
       service.registerChannel('bar');
       service.registerChannel('baz');
-      expect(service.channelDescriptions.keys, containsAll(['foo', 'bar', 'baz']));
+      expect(
+          service.channelDescriptions.keys, containsAll(['foo', 'bar', 'baz']));
     });
 
     test('log', () {
       service.registerChannel('foo');
       service.enableLogging('foo', true);
-      service.log('foo', () => 'bar');
-      expect(loggedResult, '"bar"');
+      service.log('foo', () => 'bar',
+          data: () => {
+                'x': 1,
+                'y': 2,
+                'z': 3,
+              });
+      expect(loggedResult, 'bar');
+      expect(loggedData, '{"x":1,"y":2,"z":3}');
     });
   });
 }

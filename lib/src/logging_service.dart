@@ -23,7 +23,8 @@ typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
     Map<String, String> parameters);
 
 @visibleForTesting
-typedef DeveloperLogCallback = void Function(String message, String name);
+typedef DeveloperLogCallback = void Function(
+    String message, String name, Object data);
 
 /// Manages logging services.
 ///
@@ -40,8 +41,8 @@ class LoggingService {
 
   @visibleForTesting
   LoggingService()
-      : this.withCallback((String message, String name) {
-          developer.log(message, name: name);
+      : this.withCallback((String message, String name, Object data) {
+          developer.log(message, name: name, error: data);
         });
 
   @visibleForTesting
@@ -84,17 +85,20 @@ class LoggingService {
             });
   }
 
-  void log(String channel, LogMessageCallback messageCallback) {
+  void log(String channel, LogMessageCallback messageCallback,
+      {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
     assert(channel != null);
     if (!shouldLog(channel)) {
       return;
     }
 
     assert(messageCallback != null);
-    final Object message = messageCallback();
+    final String message = messageCallback();
     assert(message != null);
 
-    _logMessageCallback(json.encode(message), channel);
+    String encodedData =
+        data != null ? json.encode(data(), toEncodable: toJsonEncodable) : null;
+    _logMessageCallback(message, channel, encodedData);
   }
 
   void registerChannel(String name, {String description}) {
