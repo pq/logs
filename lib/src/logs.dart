@@ -64,7 +64,7 @@ class Log {
 
   bool get enabled => loggingService.shouldLog(channel);
 
-  void set enabled(enabled) {
+  set enabled(enabled) {
     loggingService.enableLogging(channel, enabled);
   }
 
