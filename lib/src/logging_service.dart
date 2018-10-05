@@ -6,7 +6,21 @@ import 'package:logs/src/logs.dart';
 import 'package:meta/meta.dart';
 
 /// The shared service instance.
-final LoggingService loggingService = LoggingService();
+final LoggingService loggingService = LoggingService()
+  ..addListener(_developerLog);
+
+_developerLog(String message, String channel, Object data) {
+  developer.log(message, name: channel, error: data);
+}
+
+typedef void LogListener(String message, String channel, Object data);
+
+typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
+    Map<String, String> parameters);
+
+@visibleForTesting
+typedef DeveloperLogCallback = void Function(
+    String message, String name, Object data);
 
 /// Exception thrown on logging service configuration errors.
 class LoggingException extends Error implements Exception {
@@ -19,13 +33,6 @@ class LoggingException extends Error implements Exception {
   String toString() => 'Logging exception: $message';
 }
 
-typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
-    Map<String, String> parameters);
-
-@visibleForTesting
-typedef DeveloperLogCallback = void Function(
-    String message, String name, Object data);
-
 /// Manages logging services.
 ///
 /// The [LoggingService] is intended for internal use only.
@@ -36,20 +43,19 @@ typedef DeveloperLogCallback = void Function(
 class LoggingService {
   Map<String, String> _channelDescriptions = <String, String>{};
   Set<String> _enabledChannels = Set<String>();
-
-  final DeveloperLogCallback _logMessageCallback;
-
-  @visibleForTesting
-  LoggingService()
-      : this.withCallback((String message, String name, Object data) {
-          developer.log(message, name: name, error: data);
-        });
+  final List<LogListener> _logListeners = <LogListener>[];
 
   @visibleForTesting
-  LoggingService.withCallback(this._logMessageCallback);
+  LoggingService();
 
   /// A map of channels to channel descriptions.
   Map<String, String> get channelDescriptions => _channelDescriptions;
+
+  void addListener(LogListener listener) {
+    if (listener != null && !_logListeners.contains(listener)) {
+      _logListeners.add(listener);
+    }
+  }
 
   void enableLogging(String channel, bool enable) {
     if (!_channelDescriptions.containsKey(channel)) {
@@ -98,7 +104,9 @@ class LoggingService {
 
     String encodedData =
         data != null ? json.encode(data(), toEncodable: toJsonEncodable) : null;
-    _logMessageCallback(message, channel, encodedData);
+    for (int i = 0; i < _logListeners.length; ++i) {
+      _logListeners[i](message, channel, encodedData);
+    }
   }
 
   void registerChannel(String name, {String description}) {
@@ -106,6 +114,12 @@ class LoggingService {
       throw LoggingException('a channel named "$name" is already registered');
     }
     _channelDescriptions[name] = description;
+  }
+
+  void removeListener(LogListener listener) {
+    if (listener != null) {
+      _logListeners.remove(listener);
+    }
   }
 
   bool shouldLog(String channel) => _enabledChannels.contains(channel);

@@ -4,15 +4,17 @@ import 'package:test/test.dart';
 void main() {
   group('service tests', () {
     LoggingService service;
-    String loggedResult;
-    String loggedData;
+    String loggedMessage;
+    String loggedChannel;
+    Object loggedData;
 
     setUp(() {
-      service = LoggingService.withCallback(
-          (String message, String channel, Object data) {
-        loggedResult = message;
-        loggedData = data;
-      });
+      service = LoggingService()
+        ..addListener((message, channel, data) {
+          loggedMessage = message;
+          loggedChannel = channel;
+          loggedData = data;
+        });
     });
 
     test('register', () {
@@ -71,7 +73,7 @@ void main() {
                 'y': 2,
                 'z': 3,
               });
-      expect(loggedResult, 'bar');
+      expect(loggedMessage, 'bar');
       expect(loggedData, '{"x":1,"y":2,"z":3}');
     });
   });
