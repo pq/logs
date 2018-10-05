@@ -7,20 +7,16 @@ import 'package:meta/meta.dart';
 
 /// The shared service instance.
 final LoggingService loggingService = LoggingService()
-  ..addListener(_developerLog);
+  ..addListener(_sendToDeveloperLog);
 
-_developerLog(String message, String channel, Object data) {
+void _sendToDeveloperLog(String message, String channel, Object data) {
   developer.log(message, name: channel, error: data);
 }
 
-typedef void LogListener(String message, String channel, Object data);
+typedef void LogListener(String channel, String message, Object data);
 
 typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
     Map<String, String> parameters);
-
-@visibleForTesting
-typedef DeveloperLogCallback = void Function(
-    String message, String name, Object data);
 
 /// Exception thrown on logging service configuration errors.
 class LoggingException extends Error implements Exception {
@@ -105,7 +101,7 @@ class LoggingService {
     String encodedData =
         data != null ? json.encode(data(), toEncodable: toJsonEncodable) : null;
     for (int i = 0; i < _logListeners.length; ++i) {
-      _logListeners[i](message, channel, encodedData);
+      _logListeners[i](channel, message, encodedData);
     }
   }
 

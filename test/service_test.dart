@@ -10,7 +10,7 @@ void main() {
 
     setUp(() {
       service = LoggingService()
-        ..addListener((message, channel, data) {
+        ..addListener((channel, message, data) {
           loggedMessage = message;
           loggedChannel = channel;
           loggedData = data;
@@ -74,6 +74,7 @@ void main() {
                 'z': 3,
               });
       expect(loggedMessage, 'bar');
+      expect(loggedChannel, 'foo');
       expect(loggedData, '{"x":1,"y":2,"z":3}');
     });
   });
