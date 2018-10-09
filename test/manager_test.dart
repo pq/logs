@@ -33,21 +33,21 @@ void main() {
     test('enable', () {
       manager.registerChannel('foo');
       expect(manager.shouldLog('foo'), isFalse);
-      manager.enableLogging('foo', true);
+      manager.enableLogging('foo');
       expect(manager.shouldLog('foo'), isTrue);
     });
 
     test('enable (unregistered)', () {
       expect(manager.shouldLog('foo'), isFalse);
-      expect(() => manager.enableLogging('foo', true), throwsException);
+      expect(() => manager.enableLogging('foo'), throwsException);
     });
 
     test('disable', () {
       manager.registerChannel('foo');
       expect(manager.shouldLog('foo'), isFalse);
-      manager.enableLogging('foo', true);
+      manager.enableLogging('foo');
       expect(manager.shouldLog('foo'), isTrue);
-      manager.enableLogging('foo', false);
+      manager.enableLogging('foo', enable: false);
       expect(manager.shouldLog('foo'), isFalse);
     });
 
@@ -66,7 +66,7 @@ void main() {
 
     test('log', () {
       manager.registerChannel('foo');
-      manager.enableLogging('foo', true);
+      manager.enableLogging('foo');
       manager.log('foo', () => 'bar',
           data: () => {
                 'x': 1,
