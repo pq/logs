@@ -8,7 +8,7 @@ import 'package:meta/meta.dart';
 /// The shared manager instance.
 final LogManager logManager = LogManager()..addListener(_sendToDeveloperLog);
 
-void _sendToDeveloperLog(String message, String channel, Object data) {
+void _sendToDeveloperLog(String channel, String message, Object data) {
   developer.log(message, name: channel, error: data);
 }
 
@@ -50,7 +50,7 @@ class LogManager {
     }
   }
 
-  void enableLogging(String channel, bool enable) {
+  void enableLogging(String channel, [bool enable = true]) {
     if (!_channelDescriptions.containsKey(channel)) {
       throw LoggingException('channel "$channel" is not registered');
     }
