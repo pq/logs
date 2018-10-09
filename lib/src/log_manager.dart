@@ -5,9 +5,8 @@ import 'dart:developer' as developer;
 import 'package:logs/src/logs.dart';
 import 'package:meta/meta.dart';
 
-/// The shared service instance.
-final LoggingService loggingService = LoggingService()
-  ..addListener(_sendToDeveloperLog);
+/// The shared manager instance.
+final LogManager logManager = LogManager()..addListener(_sendToDeveloperLog);
 
 void _sendToDeveloperLog(String message, String channel, Object data) {
   developer.log(message, name: channel, error: data);
@@ -18,7 +17,7 @@ typedef void LogListener(String channel, String message, Object data);
 typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
     Map<String, String> parameters);
 
-/// Exception thrown on logging service configuration errors.
+/// Exception thrown on logging configuration errors.
 class LoggingException extends Error implements Exception {
   /// Message describing the exception.
   final String message;
@@ -29,20 +28,18 @@ class LoggingException extends Error implements Exception {
   String toString() => 'Logging exception: $message';
 }
 
-/// Manages logging services.
-///
-/// The [LoggingService] is intended for internal use only.
+/// Manages loggers.
 ///
 /// * To create logging channels, see [registerChannel].
 /// * To enable or disable a logging channel, use [enableLogging].
 /// * To query channel enablement, use [shouldLog].
-class LoggingService {
+class LogManager {
   Map<String, String> _channelDescriptions = <String, String>{};
   Set<String> _enabledChannels = Set<String>();
   final List<LogListener> _logListeners = <LogListener>[];
 
   @visibleForTesting
-  LoggingService();
+  LogManager();
 
   /// A map of channels to channel descriptions.
   Map<String, String> get channelDescriptions => _channelDescriptions;

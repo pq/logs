@@ -1,5 +1,5 @@
-import 'service_test.dart' as service_test;
+import 'manager_test.dart' as manager_test;
 
 void main() {
-  service_test.main();
+  manager_test.main();
 }

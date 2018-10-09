@@ -1,4 +1,4 @@
-import 'package:logs/src/logging_service.dart';
+import 'package:logs/src/log_manager.dart';
 
 /// A callback that, when evaluated, returns a log message.
 typedef LogMessageCallback = String Function();
@@ -12,7 +12,7 @@ typedef ToJsonEncodable = Map<dynamic, dynamic> Function(Object);
 
 /// Enable (or disable) logging for all events on the given [channel].
 void enableLogging(String channel, [bool enable = true]) {
-  loggingService.enableLogging(channel, enable);
+  logManager.enableLogging(channel, enable);
 }
 
 /// Logs a message conditionally if the given identifying event [channel] is
@@ -40,38 +40,38 @@ void enableLogging(String channel, [bool enable = true]) {
 /// [debugEnableLogging] or using a VM service call.
 void log(String channel, LogMessageCallback messageCallback,
     {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
-  loggingService.log(channel, messageCallback,
+  logManager.log(channel, messageCallback,
       data: data, toJsonEncodable: toJsonEncodable);
 }
 
 /// Register a logging channel with the given [name] and optional [description].
 void registerLoggingChannel(String name, {String description}) {
-  loggingService.registerChannel(name, description: description);
+  logManager.registerChannel(name, description: description);
 }
 
 /// Returns true if events on the given event [channel] should be logged.
-bool shouldLog(String channel) => loggingService.shouldLog(channel);
+bool shouldLog(String channel) => logManager.shouldLog(channel);
 
 class Log {
   final String channel;
 
   Log(this.channel, {String description}) {
     assert(channel != null);
-    if (!loggingService.channelDescriptions.containsKey(channel)) {
-      loggingService.registerChannel(channel, description: description);
+    if (!logManager.channelDescriptions.containsKey(channel)) {
+      logManager.registerChannel(channel, description: description);
     }
   }
 
-  bool get enabled => loggingService.shouldLog(channel);
+  bool get enabled => logManager.shouldLog(channel);
 
   set enabled(enabled) {
-    loggingService.enableLogging(channel, enabled);
+    logManager.enableLogging(channel, enabled);
   }
 
-  /// @see [log]
+  /// @see [LogManager.log]
   void log(LogMessageCallback messageCallback,
       {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
-    loggingService.log(channel, messageCallback,
+    logManager.log(channel, messageCallback,
         data: data, toJsonEncodable: toJsonEncodable);
   }
 }
