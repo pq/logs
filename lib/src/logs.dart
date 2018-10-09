@@ -11,8 +11,8 @@ typedef LogDataCallback = Map Function();
 typedef ToJsonEncodable = Map<dynamic, dynamic> Function(Object);
 
 /// Enable (or disable) logging for all events on the given [channel].
-void enableLogging(String channel, [bool enable = true]) {
-  logManager.enableLogging(channel, enable);
+void enableLogging(String channel, {bool enable = true}) {
+  logManager.enableLogging(channel, enable: enable);
 }
 
 /// Logs a message conditionally if the given identifying event [channel] is
@@ -65,7 +65,7 @@ class Log {
   bool get enabled => logManager.shouldLog(channel);
 
   set enabled(enabled) {
-    logManager.enableLogging(channel, enabled);
+    logManager.enableLogging(channel, enable: enabled);
   }
 
   /// @see [LogManager.log]

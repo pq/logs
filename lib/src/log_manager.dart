@@ -50,7 +50,7 @@ class LogManager {
     }
   }
 
-  void enableLogging(String channel, [bool enable = true]) {
+  void enableLogging(String channel, {bool enable = true}) {
     if (!_channelDescriptions.containsKey(channel)) {
       throw LoggingException('channel "$channel" is not registered');
     }
@@ -68,7 +68,7 @@ class LogManager {
           final String channel = parameters['channel'];
           if (channel != null) {
             if (_channelDescriptions.containsKey(channel)) {
-              enableLogging(channel, parameters['enable'] == 'true');
+              enableLogging(channel, enable: parameters['enable'] == 'true');
             }
           }
           return <String, dynamic>{};
