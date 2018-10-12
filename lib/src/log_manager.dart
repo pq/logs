@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer' as developer;
 
+import 'package:logs/src/channels/http_channel.dart';
 import 'package:logs/src/logs.dart';
 import 'package:meta/meta.dart';
 
@@ -16,6 +18,14 @@ typedef void LogListener(String channel, String message, Object data);
 
 typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
     Map<String, String> parameters);
+
+
+typedef bool _ChannelInstallHandler(String name);
+
+/// Provides hooks for channel installation.
+abstract class ChannelInstallHandler {
+  void installChannel(String name);
+}
 
 /// Exception thrown on logging configuration errors.
 class LoggingException extends Error implements Exception {
@@ -38,8 +48,18 @@ class LogManager {
   Set<String> _enabledChannels = Set<String>();
   final List<LogListener> _logListeners = <LogListener>[];
 
+  final LinkedHashSet<_ChannelInstallHandler> _channelInstallHandlers = LinkedHashSet<_ChannelInstallHandler>();
+
   @visibleForTesting
-  LogManager();
+  LogManager() {
+    _addChannelInstallHandler((name) {
+      if (name == 'http') {
+        installHttpChannel();
+        return true;
+      }
+      return false;
+    });
+  }
 
   /// A map of channels to channel descriptions.
   Map<String, String> get channelDescriptions => _channelDescriptions;
@@ -51,10 +71,8 @@ class LogManager {
   }
 
   void enableLogging(String channel, {bool enable = true}) {
-    if (!_channelDescriptions.containsKey(channel)) {
-      throw LoggingException('channel "$channel" is not registered');
-    }
     enable ? _enabledChannels.add(channel) : _enabledChannels.remove(channel);
+    _installHandlers(channel);
   }
 
   /// Called to register service extensions.
@@ -116,6 +134,15 @@ class LogManager {
   }
 
   bool shouldLog(String channel) => _enabledChannels.contains(channel);
+
+  void _addChannelInstallHandler(_ChannelInstallHandler handler) {
+    _channelInstallHandlers.add(handler);
+  }
+
+  void _installHandlers(String name) {
+    // Install and remove associated handler.
+    _channelInstallHandlers.removeWhere((handler) => handler(name));
+  }
 
   /// Registers a service extension method with the given name and a callback to
   /// be called when the extension method is called.
