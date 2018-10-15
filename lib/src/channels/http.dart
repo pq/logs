@@ -164,17 +164,16 @@ class LoggingHttpClient implements HttpClient {
     final int id = _nextRequestId++;
 
     // #1 • GET • https://flutter.io open
-    _log.log(() => '#$id • $method • $url open');
+    _log.log('#$id • $method • $url open');
 
     Future<HttpClientRequest> request = proxy.openUrl(method, url);
     return request.then((HttpClientRequest req) {
-      _log.log(() => '#$id • $method • $url request ready');
+      _log.log('#$id • $method • $url request ready');
 
       req.done.then((HttpClientResponse response) {
         _log.log(
-          () =>
-              '#$id • $method • $url ${response.statusCode} ${response.reasonPhrase} ${response.contentLength} bytes',
-          data: () => _headersToMap(response.headers),
+          '#$id • $method • $url ${response.statusCode} ${response.reasonPhrase} ${response.contentLength} bytes',
+          data: _headersToMap(response.headers),
         );
       });
 
