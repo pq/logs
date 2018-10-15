@@ -3,9 +3,10 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer' as developer;
 
-import 'package:logs/src/channels/http_channel.dart';
-import 'package:logs/src/logs.dart';
 import 'package:meta/meta.dart';
+
+import 'channels/http_channel.dart';
+import 'logs.dart';
 
 /// The shared manager instance.
 final LogManager logManager = LogManager()..addListener(_sendToDeveloperLog);
@@ -19,8 +20,7 @@ typedef void LogListener(String channel, String message, Object data);
 typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
     Map<String, String> parameters);
 
-
-typedef bool _ChannelInstallHandler(String name);
+typedef _ChannelInstallHandler = bool Function(String name);
 
 /// Provides hooks for channel installation.
 abstract class ChannelInstallHandler {
@@ -48,7 +48,8 @@ class LogManager {
   Set<String> _enabledChannels = Set<String>();
   final List<LogListener> _logListeners = <LogListener>[];
 
-  final LinkedHashSet<_ChannelInstallHandler> _channelInstallHandlers = LinkedHashSet<_ChannelInstallHandler>();
+  final LinkedHashSet<_ChannelInstallHandler> _channelInstallHandlers =
+      LinkedHashSet<_ChannelInstallHandler>();
 
   @visibleForTesting
   LogManager() {
