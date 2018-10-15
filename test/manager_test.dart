@@ -39,7 +39,10 @@ void main() {
 
     test('enable (unregistered)', () {
       expect(manager.shouldLog('foo'), isFalse);
-      expect(() => manager.enableLogging('foo'), throwsException);
+      // should *not* throw an exception
+      manager.enableLogging('foo');
+      manager.registerChannel('foo');
+      expect(manager.shouldLog('foo'), isTrue);
     });
 
     test('disable', () {
