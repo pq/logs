@@ -15,7 +15,11 @@ void _sendToDeveloperLog(String channel, String message, Object data) {
   developer.log(message, name: channel, error: data);
 }
 
-typedef void LogListener(String channel, String message, Object data);
+typedef LogListener = void Function(
+  String channel,
+  String message,
+  Object data,
+);
 
 typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
     Map<String, String> parameters);
@@ -103,22 +107,38 @@ class LogManager {
             });
   }
 
-  void log(String channel, LogMessageCallback messageCallback,
-      {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
+  void log(String channel, dynamic message,
+      {dynamic data, ToJsonEncodable toJsonEncodable}) {
     assert(channel != null);
     if (!shouldLog(channel)) {
       return;
     }
 
-    assert(messageCallback != null);
-    final String message = messageCallback();
     assert(message != null);
+    if (message is LogMessageCallback) {
+      message = message();
+    }
+    if (message is! String) {
+      message = message.toString();
+    }
+
+    if (data is LogDataCallback) {
+      data = data();
+    }
 
     String encodedData =
-        data != null ? json.encode(data(), toEncodable: toJsonEncodable) : null;
+        data != null ? json.encode(data, toEncodable: toJsonEncodable) : null;
     for (int i = 0; i < _logListeners.length; ++i) {
       _logListeners[i](channel, message, encodedData);
     }
+  }
+
+  void debugLog(String channel, LogMessageCallback message,
+      {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
+    assert(() {
+      log(channel, message, data: data, toJsonEncodable: toJsonEncodable);
+      return true;
+    }());
   }
 
   void registerChannel(String name, {String description}) {

@@ -18,13 +18,18 @@ void enableLogging(String channel, {bool enable = true}) {
 /// Logs a message conditionally if the given identifying event [channel] is
 /// enabled (if `shouldLog(channel)` is true).
 ///
-/// Messages are obtained by evaluating [messageCallback]. An optional map of
-/// JSON-encodable data can be provided with a [data] callback. In the event
-/// that logging is not enabled for the given [channel], [messageCallback] and
-/// [data] will not be evaluated. The cost of logging calls can be further
-/// mitigated at call sites by invoking them in a function that is only
-/// evaluated in debug (or profile) mode(s). For example, to ignore logging in
-/// release mode you could wrap calls in a profile callback:
+/// If [message] is a [Function], it will be lazy evaluated. Additionally, if
+/// [message] or its evaluated value is not a [String], then 'toString()' will
+/// be called on the object and the result will be logged.
+///
+///
+/// An optional map of JSON-encodable data can be provided as [data]. If [data]
+/// is a [Function], it will be lazily evaluated.
+///
+/// The cost of logging calls can be further mitigated at call sites by invoking
+/// them in functions that is only evaluated in debug (or profile) mode(s). For
+/// example, to ignore logging in release mode you could wrap calls in a profile
+/// callback:
 ///
 /// ```dart
 /// profile(() {
@@ -35,12 +40,30 @@ void enableLogging(String channel, {bool enable = true}) {
 ///   });
 /// });
 ///```
+/// For convenience, calls that should only be invoked in debug mode should
+/// be made with [debugLog], which wraps calls in an `assert`.
 ///
 /// Logging for a given event channel can be enabled programmatically via
-/// [debugEnableLogging] or using a VM service call.
-void log(String channel, LogMessageCallback messageCallback,
+/// [enableLogging] or using a VM service call.
+///
+/// @see enableLogging
+/// @see debugLog
+///
+void log(String channel, dynamic message,
+    {dynamic data, ToJsonEncodable toJsonEncodable}) {
+  logManager.log(channel, message,
+      data: data, toJsonEncodable: toJsonEncodable);
+}
+
+/// In debug-mode logs a message conditionally if the given identifying event
+/// [channel] is enabled (if `shouldLog(channel)` is true).
+///
+/// Calls to `debugLog` are removed from release and profile modes.
+///
+/// @see log
+void debugLog(String channel, LogMessageCallback messageCallback,
     {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
-  logManager.log(channel, messageCallback,
+  logManager.debugLog(channel, messageCallback,
       data: data, toJsonEncodable: toJsonEncodable);
 }
 
@@ -72,6 +95,13 @@ class Log {
   void log(LogMessageCallback messageCallback,
       {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
     logManager.log(channel, messageCallback,
+        data: data, toJsonEncodable: toJsonEncodable);
+  }
+
+  /// @see [LogManager.debugLog]
+  void debugLog(LogMessageCallback messageCallback,
+      {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
+    logManager.debugLog(channel, messageCallback,
         data: data, toJsonEncodable: toJsonEncodable);
   }
 }
