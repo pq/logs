@@ -5,7 +5,7 @@ import 'dart:developer' as developer;
 
 import 'package:meta/meta.dart';
 
-import 'channels/http_channel.dart';
+import 'channels/http.dart';
 import 'logs.dart';
 
 /// The shared manager instance.
