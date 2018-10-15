@@ -107,38 +107,19 @@ class LogManager {
             });
   }
 
-  void log(String channel, dynamic message,
-      {dynamic data, ToJsonEncodable toJsonEncodable}) {
+  void log(String channel, String message,
+      {Map data, ToJsonEncodable toJsonEncodable}) {
     assert(channel != null);
     if (!shouldLog(channel)) {
       return;
     }
 
     assert(message != null);
-    if (message is LogMessageCallback) {
-      message = message();
-    }
-    if (message is! String) {
-      message = message.toString();
-    }
-
-    if (data is LogDataCallback) {
-      data = data();
-    }
-
     String encodedData =
         data != null ? json.encode(data, toEncodable: toJsonEncodable) : null;
     for (int i = 0; i < _logListeners.length; ++i) {
       _logListeners[i](channel, message, encodedData);
     }
-  }
-
-  void debugLog(String channel, LogMessageCallback message,
-      {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
-    assert(() {
-      log(channel, message, data: data, toJsonEncodable: toJsonEncodable);
-      return true;
-    }());
   }
 
   void registerChannel(String name, {String description}) {
