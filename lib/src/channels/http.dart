@@ -225,7 +225,7 @@ class _HttpOverrides extends HttpOverrides {
 }
 
 Map<String, String> _headersToMap(HttpHeaders headers) {
-  Map<String, String> map = {};
+  final Map<String, String> map = {};
   headers.forEach((String name, List<String> values) {
     map[name] = values.join(',');
   });
