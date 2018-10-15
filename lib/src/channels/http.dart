@@ -27,7 +27,7 @@ class LoggingHttpClient implements HttpClient {
   @override
   String userAgent;
 
-  int _count = 1;
+  int _nextRequestId = 1;
 
   LoggingHttpClient({SecurityContext context}) {
     HttpOverrides.global = null;
@@ -129,7 +129,7 @@ class LoggingHttpClient implements HttpClient {
   @override
   Future<HttpClientRequest> get(String host, int port, String path) {
     // todo (pq): consider same logic as open (but w/ GET added)
-    _todo('getUrl');
+    _todo('get');
     return proxy.get(host, port, path);
   }
 
@@ -161,7 +161,7 @@ class LoggingHttpClient implements HttpClient {
 
   @override
   Future<HttpClientRequest> openUrl(String method, Uri url) {
-    final int id = _count++;
+    final int id = _nextRequestId++;
 
     // #1 • GET • https://flutter.io open
     _log.log(() => '#$id • $method • $url open');
@@ -171,8 +171,11 @@ class LoggingHttpClient implements HttpClient {
       _log.log(() => '#$id • $method • $url request ready');
 
       req.done.then((HttpClientResponse response) {
-        _log.log(() =>
-            '#$id • $method • $url ${response.statusCode} ${response.reasonPhrase} ${response.contentLength} bytes');
+        _log.log(
+          () =>
+              '#$id • $method • $url ${response.statusCode} ${response.reasonPhrase} ${response.contentLength} bytes',
+          data: () => _headersToMap(response.headers),
+        );
       });
 
       return req;
@@ -219,4 +222,12 @@ class LoggingHttpClient implements HttpClient {
 class _HttpOverrides extends HttpOverrides {
   HttpClient createHttpClient(SecurityContext context) =>
       LoggingHttpClient(context: context);
+}
+
+Map<String, String> _headersToMap(HttpHeaders headers) {
+  Map<String, String> map = {};
+  headers.forEach((String name, List<String> values) {
+    map[name] = values.join(',');
+  });
+  return map;
 }
