@@ -70,12 +70,11 @@ void main() {
     test('log', () {
       manager.registerChannel('foo');
       manager.enableLogging('foo');
-      manager.log('foo', () => 'bar',
-          data: () => {
-                'x': 1,
-                'y': 2,
-                'z': 3,
-              });
+      manager.log('foo', 'bar', data: {
+        'x': 1,
+        'y': 2,
+        'z': 3,
+      });
       expect(loggedMessage, 'bar');
       expect(loggedChannel, 'foo');
       expect(loggedData, '{"x":1,"y":2,"z":3}');
