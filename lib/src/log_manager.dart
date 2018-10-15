@@ -15,7 +15,7 @@ void _sendToDeveloperLog(String channel, String message, Object data) {
   developer.log(message, name: channel, error: data);
 }
 
-typedef void LogListener(String channel, String message, Object data);
+typedef LogListener = void Function(String channel, String message, Object data);
 
 typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
     Map<String, String> parameters);
