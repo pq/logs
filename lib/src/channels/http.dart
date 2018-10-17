@@ -117,7 +117,7 @@ class LoggingHttpClient implements HttpClient {
 
   @override
   void close({bool force = false}) {
-    _log.log('CLOSE${force ? " • (forced)" : ""}');
+    // Not logged.
     proxy.close(force: force);
   }
 
@@ -146,11 +146,12 @@ class LoggingHttpClient implements HttpClient {
     final String method = 'GET';
 
     // #1 • GET • https://flutter.io url
-    _log.log('#$id • $method • $url url');
+    _log.log('#$id • $method $url');
 
     Future<HttpClientRequest> request = proxy.getUrl(url);
     return request.then((HttpClientRequest req) {
-      _log.log('#$id • $method • $url request ready');
+      _log.log('#$id • $method • $url request ready',
+          data: _headersToMap(req.headers));
 
       req.done.then((HttpClientResponse response) {
         _log.log(
