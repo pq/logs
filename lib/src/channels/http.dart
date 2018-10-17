@@ -51,8 +51,8 @@ class LoggingHttpClient implements HttpClient {
 
   @override
   set authenticateProxy(
-      Future<bool> Function(String host, int port, String scheme, String realm) f,
-      ) {
+    Future<bool> Function(String host, int port, String scheme, String realm) f,
+  ) {
     _todo('authenticateProxy');
     proxy.authenticateProxy = f;
   }
