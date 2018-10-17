@@ -1,8 +1,7 @@
-/// Simple WIP http channel based on POC in https://github.com/pq/logs/issues/6
 import 'dart:async';
 import 'dart:io';
 
-import 'package:logs/logs.dart';
+import '../logs.dart';
 
 final _HttpOverrides _httpOverrides = _HttpOverrides();
 
@@ -15,6 +14,14 @@ void installHttpChannel() {
   }
 
   HttpOverrides.global = _httpOverrides;
+}
+
+Map<String, String> _headersToMap(HttpHeaders headers) {
+  final Map<String, String> map = {};
+  headers.forEach((String name, List<String> values) {
+    map[name] = values.join(',');
+  });
+  return map;
 }
 
 void _todo(String msg) {
@@ -110,7 +117,7 @@ class LoggingHttpClient implements HttpClient {
 
   @override
   void close({bool force = false}) {
-    _todo('close');
+    // Not logged.
     proxy.close(force: force);
   }
 
@@ -135,9 +142,26 @@ class LoggingHttpClient implements HttpClient {
 
   @override
   Future<HttpClientRequest> getUrl(Uri url) {
-    // todo (pq): consider same logic as open (but w/ GET added)
-    _todo('getUrl');
-    return proxy.getUrl(url);
+    final int id = _nextRequestId++;
+    final String method = 'GET';
+
+    // #1 • GET • https://flutter.io url
+    _log.log('#$id • $method $url');
+
+    Future<HttpClientRequest> request = proxy.getUrl(url);
+    return request.then((HttpClientRequest req) {
+      _log.log('#$id • $method • $url request ready',
+          data: _headersToMap(req.headers));
+
+      req.done.then((HttpClientResponse response) {
+        _log.log(
+          '#$id • $method • $url ${response.statusCode} ${response.reasonPhrase} ${response.contentLength} bytes',
+          data: _headersToMap(response.headers),
+        );
+      });
+
+      return req;
+    });
   }
 
   @override
@@ -221,12 +245,4 @@ class LoggingHttpClient implements HttpClient {
 class _HttpOverrides extends HttpOverrides {
   HttpClient createHttpClient(SecurityContext context) =>
       LoggingHttpClient(context: context);
-}
-
-Map<String, String> _headersToMap(HttpHeaders headers) {
-  final Map<String, String> map = {};
-  headers.forEach((String name, List<String> values) {
-    map[name] = values.join(',');
-  });
-  return map;
 }
