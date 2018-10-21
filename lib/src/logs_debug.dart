@@ -16,14 +16,22 @@ typedef LogDataCallback = Map Function();
 /// and [data] will not be evaluated.
 ///
 /// Calls to `debugLog` are removed from release and profile modes.
-void debugLog(String channel, LogMessageCallback messageCallback,
-    {LogDataCallback data, ToJsonEncodable toJsonEncodable}) {
+void debugLog(
+  String channel,
+  LogMessageCallback messageCallback, {
+  LogDataCallback data,
+  ToJsonEncodable toJsonEncodable,
+  int level,
+  StackTrace stackTrace,
+}) {
   assert(() {
     log(
       channel,
       messageCallback(),
       data: data(),
       toJsonEncodable: toJsonEncodable,
+      level: level,
+      stackTrace: stackTrace,
     );
     return true;
   }());

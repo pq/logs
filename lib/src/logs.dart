@@ -17,13 +17,21 @@ void enableLogging(String channel, {bool enable = true}) {
 /// [enableLogging] or using a VM service call.
 ///
 /// @see enableLogging
-void log(String channel, String message,
-    {Map data, ToJsonEncodable toJsonEncodable}) {
+void log(
+  String channel,
+  String message, {
+  Map data,
+  ToJsonEncodable toJsonEncodable,
+  int level,
+  StackTrace stackTrace,
+}) {
   logManager.log(
     channel,
     message,
     data: data,
     toJsonEncodable: toJsonEncodable,
+    level: level,
+    stackTrace: stackTrace,
   );
 }
 
@@ -52,7 +60,13 @@ class Log {
   }
 
   /// @see [LogManager.log]
-  void log(String message, {Map data, ToJsonEncodable toJsonEncodable}) {
+  void log(
+    String message, {
+    Map data,
+    ToJsonEncodable toJsonEncodable,
+    int level,
+    StackTrace stackTrace,
+  }) {
     logManager.log(
       channel,
       message,
