@@ -77,6 +77,7 @@ class Log {
       toJsonEncodable: toJsonEncodable,
       time: time,
       level: level,
+      stackTrace: stackTrace,
     );
   }
 }

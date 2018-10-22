@@ -19,12 +19,14 @@ void _sendToDeveloperLog(
   int level,
   StackTrace stackTrace,
 ) {
-  developer.log(message,
-      name: channel,
-      time: time,
-      error: data,
-      level: level,
-      stackTrace: stackTrace);
+  developer.log(
+    message,
+    name: channel,
+    time: time,
+    error: data,
+    level: level ?? 0,
+    stackTrace: stackTrace,
+  );
 }
 
 typedef LogListener = void Function(
