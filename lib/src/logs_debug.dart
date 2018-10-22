@@ -21,6 +21,7 @@ void debugLog(
   LogMessageCallback messageCallback, {
   LogDataCallback data,
   ToJsonEncodable toJsonEncodable,
+  DateTime time,
   int level,
   StackTrace stackTrace,
 }) {
@@ -30,6 +31,7 @@ void debugLog(
       messageCallback(),
       data: data(),
       toJsonEncodable: toJsonEncodable,
+      time: time,
       level: level,
       stackTrace: stackTrace,
     );

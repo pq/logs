@@ -15,17 +15,23 @@ void _sendToDeveloperLog(
   String channel,
   String message,
   Object data,
+  DateTime time,
   int level,
   StackTrace stackTrace,
 ) {
   developer.log(message,
-      name: channel, error: data, level: level, stackTrace: stackTrace);
+      name: channel,
+      time: time,
+      error: data,
+      level: level,
+      stackTrace: stackTrace);
 }
 
 typedef LogListener = void Function(
   String channel,
   String message,
   Object data,
+  DateTime time,
   int level,
   StackTrace stackTrace,
 );
@@ -121,6 +127,7 @@ class LogManager {
     String message, {
     Map data,
     ToJsonEncodable toJsonEncodable,
+    DateTime time,
     int level = 0,
     StackTrace stackTrace,
   }) {
@@ -133,7 +140,7 @@ class LogManager {
     String encodedData =
         data != null ? json.encode(data, toEncodable: toJsonEncodable) : null;
     for (int i = 0; i < _logListeners.length; ++i) {
-      _logListeners[i](channel, message, encodedData, level, stackTrace);
+      _logListeners[i](channel, message, encodedData, time, level, stackTrace);
     }
   }
 

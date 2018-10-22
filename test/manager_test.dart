@@ -7,15 +7,17 @@ void main() {
     String loggedMessage;
     String loggedChannel;
     Object loggedData;
+    DateTime loggedTime;
     int loggedLevel;
     StackTrace loggedStackTrace;
 
     setUp(() {
       manager = LogManager()
-        ..addListener((channel, message, data, level, stackTrace) {
+        ..addListener((channel, message, data, time, level, stackTrace) {
           loggedMessage = message;
           loggedChannel = channel;
           loggedData = data;
+          loggedTime = time;
           loggedLevel = level;
           loggedStackTrace = stackTrace;
         });
@@ -75,6 +77,7 @@ void main() {
       manager.registerChannel('foo');
       manager.enableLogging('foo');
       final StackTrace testTrace = new StackTrace.fromString('test trace');
+      final DateTime time = new DateTime.now();
       manager.log(
         'foo',
         'bar',
@@ -84,12 +87,14 @@ void main() {
           'z': 3,
         },
         level: 200,
+        time: time,
         stackTrace: testTrace,
       );
       expect(loggedMessage, 'bar');
       expect(loggedChannel, 'foo');
       expect(loggedData, '{"x":1,"y":2,"z":3}');
       expect(loggedLevel, 200);
+      expect(loggedTime, time);
       expect(loggedStackTrace, testTrace);
     });
   });
