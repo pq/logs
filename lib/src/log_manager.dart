@@ -11,14 +11,23 @@ import 'logs.dart';
 /// The shared manager instance.
 final LogManager logManager = LogManager()..addListener(_sendToDeveloperLog);
 
-void _sendToDeveloperLog(String channel, String message, Object data) {
-  developer.log(message, name: channel, error: data);
+void _sendToDeveloperLog(
+  String channel,
+  String message,
+  Object data,
+  int level,
+  StackTrace stackTrace,
+) {
+  developer.log(message,
+      name: channel, error: data, level: level, stackTrace: stackTrace);
 }
 
 typedef LogListener = void Function(
   String channel,
   String message,
   Object data,
+  int level,
+  StackTrace stackTrace,
 );
 
 typedef _ServiceExtensionCallback = Future<Map<String, dynamic>> Function(
@@ -107,8 +116,14 @@ class LogManager {
             });
   }
 
-  void log(String channel, String message,
-      {Map data, ToJsonEncodable toJsonEncodable}) {
+  void log(
+    String channel,
+    String message, {
+    Map data,
+    ToJsonEncodable toJsonEncodable,
+    int level = 0,
+    StackTrace stackTrace,
+  }) {
     assert(channel != null);
     if (!shouldLog(channel)) {
       return;
@@ -118,7 +133,7 @@ class LogManager {
     String encodedData =
         data != null ? json.encode(data, toEncodable: toJsonEncodable) : null;
     for (int i = 0; i < _logListeners.length; ++i) {
-      _logListeners[i](channel, message, encodedData);
+      _logListeners[i](channel, message, encodedData, level, stackTrace);
     }
   }
 
