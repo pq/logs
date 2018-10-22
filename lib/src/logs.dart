@@ -21,6 +21,7 @@ void log(
   String channel,
   String message, {
   Map data,
+  DateTime time,
   ToJsonEncodable toJsonEncodable,
   int level,
   StackTrace stackTrace,
@@ -30,6 +31,7 @@ void log(
     message,
     data: data,
     toJsonEncodable: toJsonEncodable,
+    time: time,
     level: level,
     stackTrace: stackTrace,
   );
@@ -64,6 +66,7 @@ class Log {
     String message, {
     Map data,
     ToJsonEncodable toJsonEncodable,
+    DateTime time,
     int level,
     StackTrace stackTrace,
   }) {
@@ -72,6 +75,8 @@ class Log {
       message,
       data: data,
       toJsonEncodable: toJsonEncodable,
+      time: time,
+      level: level,
     );
   }
 }
