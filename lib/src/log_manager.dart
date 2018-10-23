@@ -68,6 +68,10 @@ class LogManager {
   Map<String, String> _channelDescriptions = <String, String>{};
   Set<String> _enabledChannels = Set<String>();
   final List<LogListener> _logListeners = <LogListener>[];
+  StreamController<String> _channelAddedBroadcaster =
+      new StreamController.broadcast();
+  StreamController<String> _channelEnabledBroadcaster =
+      new StreamController.broadcast();
 
   final LinkedHashSet<_ChannelInstallHandler> _channelInstallHandlers =
       LinkedHashSet<_ChannelInstallHandler>();
@@ -95,6 +99,7 @@ class LogManager {
   void enableLogging(String channel, {bool enable = true}) {
     enable ? _enabledChannels.add(channel) : _enabledChannels.remove(channel);
     _installHandlers(channel);
+    _channelEnabledBroadcaster.add(channel);
   }
 
   /// Called to register service extensions.
@@ -102,26 +107,48 @@ class LogManager {
   /// Note: ideally this will be replaced w/ inline registrations within the
   /// flutter foundation binding (see e.g., https://github.com/flutter/flutter/pull/21505).
   void initServiceExtensions() {
+    // Fire events for new channels.
+    _channelAddedBroadcaster.stream.listen((String name) {
+      developer.postEvent('logs.channel.added', <String, dynamic>{
+        'channel': name,
+      });
+    });
+
+    // Fire events for channel enablement changes.
+    _channelEnabledBroadcaster.stream.listen((String name) {
+      developer.postEvent('logs.channel.enabled', <String, dynamic>{
+        'channel': name,
+        'enabled': shouldLog(name),
+      });
+    });
+
     _registerServiceExtension(
-        name: 'enable',
-        callback: (Map<String, Object> parameters) async {
-          final String channel = parameters['channel'];
-          if (channel != null) {
-            if (_channelDescriptions.containsKey(channel)) {
-              enableLogging(channel, enable: parameters['enable'] == 'true');
-            }
+      name: 'enable',
+      callback: (Map<String, Object> parameters) async {
+        final String channel = parameters['channel'];
+        if (channel != null) {
+          if (parameters.containsKey('enabled')) {
+            enableLogging(channel, enable: parameters['enabled'] == 'true');
           }
+          return <String, dynamic>{
+            'enabled': shouldLog(channel).toString(),
+          };
+        } else {
           return <String, dynamic>{};
-        });
+        }
+      },
+    );
+
     _registerServiceExtension(
-        name: 'loggingChannels',
-        callback: (Map<String, dynamic> parameters) async => {
-              'value': _channelDescriptions.map(
-                  (channel, description) => MapEntry(channel, <String, String>{
-                        'enabled': shouldLog(channel).toString(),
-                        'description': description ?? '',
-                      }))
-            });
+      name: 'loggingChannels',
+      callback: (Map<String, dynamic> parameters) async => {
+            'value': _channelDescriptions.map(
+                (channel, description) => MapEntry(channel, <String, String>{
+                      'enabled': shouldLog(channel).toString(),
+                      'description': description ?? '',
+                    }))
+          },
+    );
   }
 
   void log(
@@ -151,6 +178,8 @@ class LogManager {
       throw LoggingException('a channel named "$name" is already registered');
     }
     _channelDescriptions[name] = description;
+
+    _channelAddedBroadcaster.add(name);
   }
 
   void removeListener(LogListener listener) {
@@ -172,8 +201,10 @@ class LogManager {
 
   /// Registers a service extension method with the given name and a callback to
   /// be called when the extension method is called.
-  void _registerServiceExtension(
-      {@required String name, @required _ServiceExtensionCallback callback}) {
+  void _registerServiceExtension({
+    @required String name,
+    @required _ServiceExtensionCallback callback,
+  }) {
     assert(name != null);
     assert(callback != null);
     final String methodName = 'ext.flutter.logs.$name';
