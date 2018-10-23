@@ -65,6 +65,8 @@ class LoggingException extends Error implements Exception {
 /// * To enable or disable a logging channel, use [enableLogging].
 /// * To query channel enablement, use [shouldLog].
 class LogManager {
+  // Track initialization state to ensure no double VM service registrations.
+  static bool _initialized;
   Map<String, String> _channelDescriptions = <String, String>{};
   Set<String> _enabledChannels = Set<String>();
   final List<LogListener> _logListeners = <LogListener>[];
@@ -107,6 +109,11 @@ class LogManager {
   /// Note: ideally this will be replaced w/ inline registrations within the
   /// flutter foundation binding (see e.g., https://github.com/flutter/flutter/pull/21505).
   void initServiceExtensions() {
+    // Avoid double initialization.
+    if (_initialized == true) {
+      return;
+    }
+
     // Fire events for new channels.
     _channelAddedBroadcaster.stream.listen((String name) {
       developer.postEvent('logs.channel.added', <String, dynamic>{
@@ -149,6 +156,8 @@ class LogManager {
                     }))
           },
     );
+
+    _initialized = true;
   }
 
   void log(
