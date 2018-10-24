@@ -145,17 +145,20 @@ class LoggingHttpClient implements HttpClient {
     final int id = _nextRequestId++;
     final String method = 'GET';
 
-    // #1 • GET • https://flutter.io url
+    // #1 • GET https://flutter.io url
     _log.log('#$id • $method $url');
 
     Future<HttpClientRequest> request = proxy.getUrl(url);
     return request.then((HttpClientRequest req) {
-      _log.log('#$id • $method • $url request ready',
+      _log.log('#$id • $method $url • request ready',
           data: _headersToMap(req.headers));
 
       req.done.then((HttpClientResponse response) {
+        String len = response.contentLength >= 0
+            ? ' ${response.contentLength} bytes'
+            : '';
         _log.log(
-          '#$id • $method • $url ${response.statusCode} ${response.reasonPhrase} ${response.contentLength} bytes',
+          '#$id • $method $url • ${response.statusCode} ${response.reasonPhrase}$len',
           data: _headersToMap(response.headers),
         );
       });
@@ -187,16 +190,19 @@ class LoggingHttpClient implements HttpClient {
   Future<HttpClientRequest> openUrl(String method, Uri url) {
     final int id = _nextRequestId++;
 
-    // #1 • GET • https://flutter.io open
-    _log.log('#$id • $method • $url open');
+    // #1 • GET https://flutter.io • open
+    _log.log('#$id • $method $url • open');
 
     Future<HttpClientRequest> request = proxy.openUrl(method, url);
     return request.then((HttpClientRequest req) {
-      _log.log('#$id • $method • $url request ready');
+      _log.log('#$id • $method $url • request ready');
 
       req.done.then((HttpClientResponse response) {
+        String len = response.contentLength >= 0
+            ? ' ${response.contentLength} bytes'
+            : '';
         _log.log(
-          '#$id • $method • $url ${response.statusCode} ${response.reasonPhrase} ${response.contentLength} bytes',
+          '#$id • $method $url • ${response.statusCode} ${response.reasonPhrase}$len',
           data: _headersToMap(response.headers),
         );
       });
