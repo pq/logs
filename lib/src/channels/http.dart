@@ -190,8 +190,8 @@ class LoggingHttpClient implements HttpClient {
   Future<HttpClientRequest> openUrl(String method, Uri url) {
     final int id = _nextRequestId++;
 
-    // #1 • GET https://flutter.io open
-    _log.log('#$id • $method $url open');
+    // #1 • GET https://flutter.io • open
+    _log.log('#$id • $method $url • open');
 
     Future<HttpClientRequest> request = proxy.openUrl(method, url);
     return request.then((HttpClientRequest req) {
