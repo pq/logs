@@ -1,5 +1,5 @@
 # logs
-A lightweight logging framework for Flutter
+A lightweight Dart logging framework
 
 [![Build Status](https://travis-ci.org/pq/logs.svg?branch=master)](https://travis-ci.org/pq/logs)
 
